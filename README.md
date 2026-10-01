@@ -24,11 +24,11 @@ Official implementation of [**SPARK: Sim-ready Part-level Articulated Reconstruc
 **1. Clone and create the env**
 
 ```bash
-git clone https://github.com/YumengHe/SPARK-private.git
-cd SPARK-private
+git clone https://github.com/YumengHe/SPARK.git
+cd SPARK
 
-conda create -n sparkprivate python=3.10 -y
-conda activate sparkprivate
+conda create -n spark python=3.10 -y
+conda activate spark
 ```
 
 **2. Install PyTorch + torch-cluster + project dependencies**
