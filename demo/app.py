@@ -29,7 +29,6 @@ GRADIO_TMP_ROOT = PROJECT_ROOT / "demo" / "tmp"
 DEFAULT_OPENAI_MODEL = "gpt-4o"
 DEFAULT_GUIDANCE_SCALE = 1.0
 DEFAULT_INFERENCE_STEPS = 1000
-DEFAULT_IMAGE_TEMPERATURE = 1.0
 DEFAULT_SEED = 0
 DEFAULT_CUDA_DEVICE = "0"
 
@@ -58,8 +57,8 @@ HERO_HTML = """
         <p><strong>📋 Custom Workflow:</strong></p>
         <ol>
             <li><strong>Upload Image</strong> - Select your input image</li>
-            <li><strong>Fill OpenAI + Gemini Keys</strong> - Both are required for the full pipeline</li>
-            <li><strong>Adjust Generation Controls</strong> - Tune seed, steps, CFG, and image temperature</li>
+            <li><strong>Fill OpenAI Key</strong> - Required for the full pipeline (metadata, prompts, and image generation)</li>
+            <li><strong>Adjust Generation Controls</strong> - Tune seed, steps, and CFG</li>
             <li><strong>Click Generate 3D Model</strong> - Generate metadata, URDF, part images, and 3D result</li>
         </ol>
     </div>
@@ -216,32 +215,22 @@ def run_command(command: list[str], env: dict[str, str], title: str) -> str:
     return "\n".join(log)
 
 
-def prepare_env(openai_api_key: str, gemini_api_key: str, cuda_device: str) -> dict[str, str]:
+def prepare_env(openai_api_key: str, cuda_device: str) -> dict[str, str]:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(PROJECT_ROOT) + os.pathsep + env.get("PYTHONPATH", "")
     env["CUDA_VISIBLE_DEVICES"] = cuda_device or DEFAULT_CUDA_DEVICE
     if openai_api_key:
         env["OPENAI_API_KEY"] = openai_api_key
-    if gemini_api_key:
-        env["GEMINI_API_KEY"] = gemini_api_key
     return env
 
 
-def ensure_api_keys(openai_api_key: str, gemini_api_key: str) -> None:
-    missing = []
+def ensure_api_keys(openai_api_key: str) -> None:
     if not (openai_api_key or os.getenv("OPENAI_API_KEY")):
-        missing.append("OpenAI")
-    if not (gemini_api_key or os.getenv("GEMINI_API_KEY")):
-        missing.append("Gemini")
-
-    if missing:
-        missing_text = ", ".join(missing)
         raise DemoError(
-            "The full SPARK pipeline requires **both OpenAI and Gemini API keys**.\n\n"
-            f"Missing: {missing_text}\n\n"
-            "- `OpenAI API Key`: used for `metadata.json` prediction, joint-axis correction, and prompt generation\n"
-            "- `Gemini API Key`: used for part-image and open-state image generation\n\n"
-            "Please fill in both fields under `Model & API Settings`, or set `OPENAI_API_KEY` and `GEMINI_API_KEY` in your environment."
+            "The SPARK pipeline requires an **OpenAI API key**.\n\n"
+            "- `OpenAI API Key`: used for `metadata.json` prediction, joint-axis correction, prompt generation, "
+            "and part-image / open-state image generation (gpt-image-2)\n\n"
+            "Please fill in the field under `Model & API Settings`, or set `OPENAI_API_KEY` in your environment."
         )
 
 
@@ -364,7 +353,7 @@ def collect_outputs(run_dir: Path, logs: str = ""):
     )
 
 
-def generate_part_images(run_dir: Path, env: dict[str, str], temperature: float, seed: int, logs: list[str]) -> None:
+def generate_part_images(run_dir: Path, env: dict[str, str], logs: list[str]) -> None:
     prompt_part = read_json_if_exists(run_dir / "prompt_part.json")
     prompts = (prompt_part or {}).get("prompts", {})
     if not prompts:
@@ -377,17 +366,13 @@ def generate_part_images(run_dir: Path, env: dict[str, str], temperature: float,
             str(run_dir),
             "--part",
             part_label,
-            "--temperature",
-            str(temperature),
-            "--seed",
-            str(seed),
         ]
-        if env.get("GEMINI_API_KEY"):
-            command.extend(["--api-key", env["GEMINI_API_KEY"]])
+        if env.get("OPENAI_API_KEY"):
+            command.extend(["--api-key", env["OPENAI_API_KEY"]])
         logs.append(run_command(command, env, f"Generate image for {part_label}"))
 
 
-def run_open_image_generation(run_dir: Path, env: dict[str, str], openai_model: str, temperature: float, seed: int, logs: list[str]) -> None:
+def run_open_image_generation(run_dir: Path, env: dict[str, str], openai_model: str, seed: int, logs: list[str]) -> None:
     prompt_command = [
         sys.executable,
         str(PROJECT_ROOT / "VLMguidance" / "generate_prompt_open.py"),
@@ -407,25 +392,19 @@ def run_open_image_generation(run_dir: Path, env: dict[str, str], openai_model: 
         str(PROJECT_ROOT / "VLMguidance" / "generate_image_open.py"),
         "--input",
         str(run_dir),
-        "--temperature",
-        str(temperature),
-        "--seed",
-        str(seed),
     ]
-    if env.get("GEMINI_API_KEY"):
-        image_command.extend(["--api-key", env["GEMINI_API_KEY"]])
+    if env.get("OPENAI_API_KEY"):
+        image_command.extend(["--api-key", env["OPENAI_API_KEY"]])
     logs.append(run_command(image_command, env, "Generate open image"))
 
 
 def run_spark_pipeline(
     image_path: str,
     openai_api_key: str,
-    gemini_api_key: str,
     openai_model: str,
     seed: int,
     num_inference_steps: int,
     guidance_scale: float,
-    image_temperature: float,
     cuda_device: str,
     generate_open_image: bool,
     progress: gr.Progress = gr.Progress(),
@@ -434,8 +413,8 @@ def run_spark_pipeline(
         raise gr.Error("Please upload an image first.")
 
     try:
-        ensure_api_keys(openai_api_key, gemini_api_key)
-        env = prepare_env(openai_api_key, gemini_api_key, cuda_device)
+        ensure_api_keys(openai_api_key)
+        env = prepare_env(openai_api_key, cuda_device)
         run_dir = create_run_dir(image_path)
         copied_image = copy_input_image(image_path, run_dir)
         logs: list[str] = [f"Run directory: {run_dir}", f"Saved input image: {copied_image}"]
@@ -509,7 +488,7 @@ def run_spark_pipeline(
         logs.append(run_command(command, env, "Generate part prompts"))
 
         progress(0.58, desc="Generating part images")
-        generate_part_images(run_dir, env, image_temperature, seed, logs)
+        generate_part_images(run_dir, env, logs)
 
         progress(0.78, desc="Running PartCrafter")
         inference_tag = f"gradio_seed{seed}"
@@ -539,7 +518,7 @@ def run_spark_pipeline(
 
         if generate_open_image:
             progress(0.92, desc="Generating open-state image")
-            run_open_image_generation(run_dir, env, openai_model, image_temperature, seed, logs)
+            run_open_image_generation(run_dir, env, openai_model, seed, logs)
 
         progress(1.0, desc="Done")
         return collect_outputs(run_dir, "\n\n".join(logs))
@@ -600,16 +579,14 @@ with gr.Blocks(
 
             with gr.Row():
                 num_inference_steps = gr.Slider(label="Inference Steps", minimum=50, maximum=1500, step=50, value=DEFAULT_INFERENCE_STEPS)
-                image_temperature = gr.Slider(label="Image Temperature", minimum=0.0, maximum=2.0, step=0.1, value=DEFAULT_IMAGE_TEMPERATURE)
 
             with gr.Accordion("Model & API Settings", open=False):
                 gr.Markdown(
-                    "**Both `OpenAI API Key` and `Gemini API Key` are required for the full SPARK pipeline.**  \n"
-                    "OpenAI handles metadata and prompt generation, while Gemini handles image generation.",
+                    "**An `OpenAI API Key` is required for the full SPARK pipeline.**  \n"
+                    "OpenAI handles metadata and prompt generation as well as part/open-state image generation (gpt-image-2).",
                     elem_classes=["hint-text"],
                 )
                 openai_api_key = gr.Textbox(label="OpenAI API Key", type="password", placeholder="sk-...", value="")
-                gemini_api_key = gr.Textbox(label="Gemini API Key", type="password", placeholder="AIza...", value="")
                 openai_model = gr.Textbox(label="OpenAI Model", value=DEFAULT_OPENAI_MODEL)
                 cuda_device = gr.Textbox(label="CUDA_VISIBLE_DEVICES", value=DEFAULT_CUDA_DEVICE)
                 generate_open_image = gr.Checkbox(label="Also generate open-state image", value=True)
@@ -697,12 +674,10 @@ with gr.Blocks(
         inputs=[
             input_image,
             openai_api_key,
-            gemini_api_key,
             openai_model,
             seed,
             num_inference_steps,
             guidance_scale,
-            image_temperature,
             cuda_device,
             generate_open_image,
         ],

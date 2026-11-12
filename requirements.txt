@@ -44,7 +44,6 @@ lpips
 
 # VLM / texture APIs
 openai==2.6.1
-google-genai==1.46.0
 requests==2.32.4
 
 # Misc

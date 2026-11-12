@@ -18,10 +18,6 @@ OUTPUT_DIR = "./output"    # directory where all outputs are stored
 CSV_PATH = "./VLMguidance/partnet-mobility-data-analysis.csv"
 SEED = 42
 
-# Image generation parameters (Step 5)
-IMAGE_GEN_TEMPERATURE = 1.0  # 0.0-2.0, higher = more random
-IMAGE_GEN_SEED = None  # None = random, set integer for reproducibility
-
 # Inference parameters (Step 6)
 CUDA_DEVICE = "0"
 INFERENCE_SEED = 0
@@ -149,11 +145,8 @@ for name in names_to_process:
                 cmd5 = [
                     "python", "VLMguidance/generate_image_part.py",
                     "--input", output_subdir,
-                    "--part", part_label,
-                    "--temperature", str(IMAGE_GEN_TEMPERATURE)
+                    "--part", part_label
                 ]
-                if IMAGE_GEN_SEED is not None:
-                    cmd5.extend(["--seed", str(IMAGE_GEN_SEED)])
 
                 subprocess.run(cmd5)
         else:
@@ -226,11 +219,8 @@ for name in names_to_process:
     if step8b:
         cmd8b = [
             "python", "VLMguidance/generate_image_open.py",
-            "--input", output_subdir,
-            "--temperature", str(IMAGE_GEN_TEMPERATURE)
+            "--input", output_subdir
         ]
-        if IMAGE_GEN_SEED is not None:
-            cmd8b.extend(["--seed", str(IMAGE_GEN_SEED)])
         print(f"Generating open image for: {name}")
         subprocess.run(cmd8b)
     else:
