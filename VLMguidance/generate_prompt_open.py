@@ -21,7 +21,7 @@ except ImportError:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # ========= 2) Default model =========
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = os.getenv("SPARK_OPENAI_CHAT_MODEL", "gpt-6.1-sol")  # override with the SPARK_OPENAI_CHAT_MODEL env var
 
 # ========= 3) Target opening angle range (in degrees) =========
 MIN_OPEN_ANGLE = 120

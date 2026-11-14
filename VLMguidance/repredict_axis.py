@@ -26,7 +26,7 @@ except ImportError:
     pass
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = os.getenv("SPARK_OPENAI_CHAT_MODEL", "gpt-6.1-sol")  # override with the SPARK_OPENAI_CHAT_MODEL env var
 
 
 def load_image_as_data_uri(path: str) -> str:

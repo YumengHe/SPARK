@@ -22,7 +22,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 
 # ========= 2) Default model =========
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = os.getenv("SPARK_OPENAI_CHAT_MODEL", "gpt-6.1-sol")  # override with the SPARK_OPENAI_CHAT_MODEL env var
 
 def load_image_as_data_uri(path: str) -> str:
     """Load image file and convert to data URI for API."""
