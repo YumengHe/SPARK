@@ -189,10 +189,11 @@ Thanks to Yongfei She for organizing the code for open source release.
 If you find SPARK useful for your research, please cite:
 
 ```bibtex
-@article{he2025spark,
-  title={SPARK: Sim-ready Part-level Articulated Reconstruction with VLM Knowledge},
+@inproceedings{he2026spark,
+  title={Spark: Sim-ready part-level articulated reconstruction with vlm knowledge},
   author={He, Yumeng and Jiang, Ying and Lu, Jiayin and Yang, Yin and Jiang, Chenfanfu},
-  journal={arXiv preprint arXiv:2512.01629},
-  year={2025}
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={7233--7243},
+  year={2026}
 }
 ```
