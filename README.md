@@ -19,6 +19,10 @@
 
 Official implementation of [**SPARK: Sim-ready Part-level Articulated Reconstruction with VLM Knowledge**](https://heyumeng.com/SPARK/index.html). SPARK combines VLM-guided part-level and global image guidance with diffusion transformers to produce high-quality articulated object reconstructions from a single image.
 
+## 📰 News
+
+- **[2026-11]** We changed the image generation model to GPT; only an OpenAI API key is required.
+
 ## 🔧 Installation
 
 **1. Clone and create the env**
@@ -95,11 +99,8 @@ python -m src.utils.download_weights
 Create an `.env` file and add API key inside:
 
 ```
-# OpenAI: metadata.json prediction, joint-axis correction, prompt generation
+# OpenAI: metadata.json prediction, joint-axis correction, prompt generation, part/open-state image generation
 OPENAI_API_KEY=
-
-# Google Gemini: part-image and open-state image generation
-GEMINI_API_KEY=
 
 # Meshy: texturing
 MESHY_API_KEY=
