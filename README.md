@@ -21,7 +21,7 @@ Official implementation of [**SPARK: Sim-ready Part-level Articulated Reconstruc
 
 ## 📰 News
 
-- **[2026-11]** We changed the image generation model to GPT; only an OpenAI API key is required.
+- **[2026-11]** Image generation moved from Gemini to OpenAI's `gpt-image-2.6-sunburst`, and the VLM steps now use `gpt-6.1-sol`, so only an OpenAI API key is required. We compared the latest GPT image models [here](docs/image_model_comparison.md).
 
 ## 🔧 Installation
 
