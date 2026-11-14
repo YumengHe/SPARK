@@ -404,6 +404,7 @@ def export_renderings(
     fps: int = 36, 
     loop: int = 0
 ): 
+    export_path = str(export_path)  # callers may pass a pathlib.Path
     export_type = export_path.split('.')[-1]
     if export_type == 'mp4':
         export_to_video(

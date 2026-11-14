@@ -22,7 +22,7 @@ except ImportError:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # ========= 2) Default model =========
-DEFAULT_MODEL = "gpt-5.2"
+DEFAULT_MODEL = os.getenv("SPARK_OPENAI_CHAT_MODEL", "gpt-6.1-sol")  # override with the SPARK_OPENAI_CHAT_MODEL env var
 
 CATEGORIES = [
     "Bottle","Box","Bucket","Camera","Cart","Chair","Clock","CoffeeMachine","Dishwasher","Dispenser","Display",
@@ -397,7 +397,7 @@ def main():
     parser.add_argument("--csv", default="partnet-mobility-data-analysis.csv", help="CSV file with category information (default: partnet-mobility-data-analysis.csv)")
     parser.add_argument("--image", default="rendering.png", help="Image filename to look for in each subfolder when --input is a directory (default: rendering.png)")
     parser.add_argument("--output", default=None, help="Output JSON file path (only used when --input is a single image)")
-    parser.add_argument("--model", default=DEFAULT_MODEL, help="OpenAI model (e.g., gpt-4o, gpt-4o-mini).")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"OpenAI model (default: {DEFAULT_MODEL})")
     parser.add_argument("--api-key", default=None, help="OpenAI API Key (overrides OPENAI_API_KEY/env).")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducible results (optional)")
     args = parser.parse_args()
