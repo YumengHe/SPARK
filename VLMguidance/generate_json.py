@@ -295,7 +295,6 @@ def call_openai_vision(api_key: str, model: str, image_data_uri: str, system_pro
     # Build API call parameters
     api_params = {
         "model": model,
-        "temperature": 0.2,
         "response_format": {"type": "json_object"},
         "messages": [
             {"role": "system", "content": system_prompt},
