@@ -229,7 +229,7 @@ def ensure_api_keys(openai_api_key: str) -> None:
         raise DemoError(
             "The SPARK pipeline requires an **OpenAI API key**.\n\n"
             "- `OpenAI API Key`: used for `metadata.json` prediction, joint-axis correction, prompt generation, "
-            "and part-image / open-state image generation (gpt-image-2)\n\n"
+            "and part-image / open-state image generation (gpt-image-2.6-sunburst)\n\n"
             "Please fill in the field under `Model & API Settings`, or set `OPENAI_API_KEY` in your environment."
         )
 
@@ -583,7 +583,7 @@ with gr.Blocks(
             with gr.Accordion("Model & API Settings", open=False):
                 gr.Markdown(
                     "**An `OpenAI API Key` is required for the full SPARK pipeline.**  \n"
-                    "OpenAI handles metadata and prompt generation as well as part/open-state image generation (gpt-image-2).",
+                    "OpenAI handles metadata and prompt generation as well as part/open-state image generation (gpt-image-2.6-sunburst).",
                     elem_classes=["hint-text"],
                 )
                 openai_api_key = gr.Textbox(label="OpenAI API Key", type="password", placeholder="sk-...", value="")

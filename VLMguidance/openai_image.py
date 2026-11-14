@@ -6,7 +6,7 @@ Used by generate_image_part.py / generate_image_open.py: one text prompt + one r
 -> one PNG, through the Images API *edit* endpoint.
 
 Env knobs (all optional, read at import time):
-  SPARK_OPENAI_IMAGE_MODEL    default gpt-image-2
+  SPARK_OPENAI_IMAGE_MODEL    default gpt-image-2.6-sunburst
   SPARK_OPENAI_IMAGE_QUALITY  low | medium | high | auto      (default medium)
   SPARK_OPENAI_IMAGE_SIZE     1024x1024 | 1536x1024 | 1024x1536 | auto
                               (default 1024x1024; downstream inference reads link*.png with PIL)
@@ -18,7 +18,7 @@ import os
 import sys
 from pathlib import Path
 
-DEFAULT_MODEL = os.environ.get("SPARK_OPENAI_IMAGE_MODEL", "gpt-image-2").strip()
+DEFAULT_MODEL = os.environ.get("SPARK_OPENAI_IMAGE_MODEL", "gpt-image-2.6-sunburst").strip()
 DEFAULT_QUALITY = os.environ.get("SPARK_OPENAI_IMAGE_QUALITY", "medium").strip()
 DEFAULT_SIZE = os.environ.get("SPARK_OPENAI_IMAGE_SIZE", "1024x1024").strip()
 
@@ -69,7 +69,7 @@ def generate_image_openai(api_key: str, prompt: str, reference_image_path: str, 
     client = OpenAI(api_key=api_key)
     kwargs = dict(model=model, prompt=prompt, size=size, quality=quality, n=1)
     # gpt-image-1 / 1.5 accept input_fidelity="high" (keeps the reference's details);
-    # gpt-image-2 is always high-fidelity and rejects the parameter, so only send it to 1.x.
+    # gpt-image-2 and later are always high-fidelity and rejects the parameter, so only send it to 1.x.
     if model.startswith("gpt-image-1"):
         kwargs["input_fidelity"] = "high"
 

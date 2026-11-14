@@ -19,7 +19,7 @@ except ImportError:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # ========= Model =========
-# OpenAI Images API (gpt-image-2 by default); model/quality/size via SPARK_OPENAI_IMAGE_* (see openai_image.py).
+# OpenAI Images API (gpt-image-2.6-sunburst by default); model/quality/size via SPARK_OPENAI_IMAGE_* (see openai_image.py).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from openai_image import generate_image_openai, describe_openai_backend  # noqa: E402
 
